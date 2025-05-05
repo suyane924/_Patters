@@ -1,0 +1,111 @@
+import java.util.ArrayList;
+import java.util.List;
+
+interface ContatoComponent {
+    void exibir(String prefixo);
+    ContatoComponent buscar(String nome);
+}
+
+class Pessoa implements ContatoComponent {
+    private String nome;
+
+    public Pessoa(String nome) {
+        this.nome = nome;
+    }
+
+    @Override
+    public void exibir(String prefixo) {
+        System.out.println(prefixo + "- " + nome);
+    }
+
+    @Override
+    public ContatoComponent buscar(String nome) {
+        if (this.nome.equalsIgnoreCase(nome)) {
+            return this;
+        }
+        return null;
+    }
+
+    @Override
+    public String toString() {
+        return nome;
+    }
+}
+
+class Grupo implements ContatoComponent {
+    private String nome;
+    private List<ContatoComponent> membros = new ArrayList<>();
+
+    public Grupo(String nome) {
+        this.nome = nome;
+    }
+
+    public void adicionar(ContatoComponent contato) {
+        membros.add(contato);
+    }
+
+    public void remover(ContatoComponent contato) {
+        membros.remove(contato);
+    }
+
+    @Override
+    public void exibir(String prefixo) {
+        System.out.println(prefixo + "+ Grupo: " + nome);
+        for (ContatoComponent membro : membros) {
+            membro.exibir(prefixo + "  ");
+        }
+    }
+
+    @Override
+    public ContatoComponent buscar(String nome) {
+        if (this.nome.equalsIgnoreCase(nome)) {
+            return this;
+        }
+        for (ContatoComponent membro : membros) {
+            ContatoComponent encontrado = membro.buscar(nome);
+            if (encontrado != null) return encontrado;
+        }
+        return null;
+    }
+
+    @Override
+    public String toString() {
+        return "Grupo: " + nome;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Grupo redeContatos = new Grupo("Minha Rede");
+
+        Pessoa joao = new Pessoa("João");
+        Pessoa maria = new Pessoa("Maria");
+
+        Grupo familia = new Grupo("Família");
+        familia.adicionar(new Pessoa("Pai"));
+        familia.adicionar(new Pessoa("Mãe"));
+
+        Grupo primos = new Grupo("Primos");
+        primos.adicionar(new Pessoa("Lucas"));
+        primos.adicionar(new Pessoa("Ana"));
+        familia.adicionar(primos);
+
+        Grupo colegas = new Grupo("Colegas de Trabalho");
+        Grupo devs = new Grupo("Equipe de Desenvolvimento");
+        devs.adicionar(new Pessoa("Carlos"));
+        devs.adicionar(new Pessoa("Fernanda"));
+        colegas.adicionar(devs);
+
+        redeContatos.adicionar(joao);
+        redeContatos.adicionar(maria);
+        redeContatos.adicionar(familia);
+        redeContatos.adicionar(colegas);
+
+        System.out.println("📋 Estrutura da Rede de Contatos:");
+        redeContatos.exibir("");
+
+        System.out.println("\n🔍 Buscando por 'Fernanda':");
+        ContatoComponent encontrado = redeContatos.buscar("Fernanda");
+        System.out.println(encontrado != null ? "Encontrado: " + encontrado : "Não encontrado.");
+    }
+}
